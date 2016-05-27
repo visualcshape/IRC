@@ -27,6 +27,7 @@ public class Main extends Application {
         primaryStage.getIcons().add(new Image(new FileInputStream(new File(ICON_PNG_NAME))));
         MainController mainController = loader.getController();
         mainController.setThisStage(primaryStage);
+        mainController.syncValues();
     }
 
 
