@@ -4,6 +4,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
 
@@ -20,10 +21,11 @@
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
-              <MenuItem mnemonicParsing="false" text="About" />
+              <MenuItem mnemonicParsing="false" onAction="#ClickAboutMenuItem" text="About" />
             </items>
           </Menu>
         </menus>
       </MenuBar>
+      <AnchorPane prefHeight="378.0" prefWidth="600.0" />
    </children>
 </VBox>
