@@ -3,6 +3,6 @@ Classify Data Set using Classifier in Lucene 6.0
 
 Requirement
 ===
-JDK 1.8
-JavaFX 2.0
-Lucene 6.0
+> 1. JDK 1.8 
+> 2. JavaFX 2.0 
+> 3. Lucene 6.0 
