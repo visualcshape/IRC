@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onDragDetected="#ClickUCIHyperLink" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ntut.IR.DSADSController">
+   <children>
+      <Label layoutX="14.0" layoutY="14.0" text="前" />
+      <Spinner fx:id="trainingSetSpinner" layoutX="34.0" layoutY="10.0" />
+      <Label layoutX="203.0" layoutY="14.0" text="組資料集當作訓練用資料集，剩餘" />
+      <Label fx:id="testSetLabel" layoutX="383.0" layoutY="14.0" text="N/A" />
+      <Label layoutX="406.0" layoutY="14.0" text="組資料為測試資料集" />
+      <Hyperlink layoutX="14.0" layoutY="43.0" onAction="#ClickUCIHyperLink" text="前往UCI MLR" />
+   </children>
+</AnchorPane>

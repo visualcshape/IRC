@@ -24,10 +24,9 @@ public class Main extends Application {
         primaryStage.setTitle(TITLE);
         primaryStage.setScene(new Scene(root, WIN_WIDTH, WIN_HEIGHT));
         primaryStage.show();
-        primaryStage.getIcons().add(new Image(new FileInputStream(new File(ICON_PNG_NAME))));
+        primaryStage.getIcons().add(new Image(this.getClass().getResourceAsStream(ICON_PNG_NAME)));
         MainController mainController = loader.getController();
         mainController.setThisStage(primaryStage);
-        mainController.syncValues();
     }
 
 
