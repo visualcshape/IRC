@@ -1,20 +1,16 @@
 package ntut.IR;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import ntut.IR.exception.NoThisDataSetNameException;
 import ntut.IR.exception.NoThisMethodException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,6 +18,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.function.Consumer;
+import weka.classifiers.lazy.IBk;
 
 public class MainController extends Observable implements Observer{
     //GUI Constants
@@ -101,10 +98,11 @@ public class MainController extends Observable implements Observer{
             @Override
             public void accept(String s) {
                 if(s.equals(mSupportingDataSetsComboBox.getValue())){
-                    String fxmlName = mModel.getFXMLName(s);
+
                     if(currentDataSetGUINode != null)
                         mDataSetSettingVBox.getChildren().remove(currentDataSetGUINode);
                     try {
+                        String fxmlName = mModel.getFXMLName(s);
                         FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource(fxmlName));
                         mDataSetSettingVBox.getChildren().add(loader.load());
                         mModel.setSelectDataSetName(s);

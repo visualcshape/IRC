@@ -104,7 +104,11 @@ public class Model {
                 !this.mSelectDataSetName.isEmpty();
     }
 
-    public final String getFXMLName(String dataSetName){
+    public final String getFXMLName(String dataSetName) throws NoThisDataSetNameException{
+        String fxmlName = this.mSupportDataSetNameAndFXMLName.get(dataSetName);
+        if(fxmlName == null){
+            throw new NoThisDataSetNameException();
+        }
         return this.mSupportDataSetNameAndFXMLName.get(dataSetName);
     }
 }
