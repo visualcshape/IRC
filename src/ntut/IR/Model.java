@@ -1,13 +1,12 @@
 package ntut.IR;
 
+import ntut.IR.exception.NoThisMethodException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by VodalokLab on 2016/5/27.
@@ -15,10 +14,13 @@ import java.util.Map;
 public class Model {
     private String mDataSetLocation = "";
     private String mReportStoreLocation = "";
-    private List<String> mSupportingDataSetList = new ArrayList<>();
+    private Map<String, String> mSupportDataSetNameAndFXMLName = new HashMap<>();
     private Map<String, SupportClassificationMethodEnumerable> mSupportClassificationMethods = new HashMap<>();
+    private SupportClassificationMethodEnumerable mSelectedClassificationMethod = SupportClassificationMethodEnumerable.NOT_SELECT;
+    private Integer mSelectDataSetNameIndex = null;
 
     private enum SupportClassificationMethodEnumerable{
+        NOT_SELECT,
         KNN
     }
 
@@ -29,7 +31,9 @@ public class Model {
         BufferedReader reader = new BufferedReader(new InputStreamReader(supportingListStream));
         String aLine;
         while((aLine = reader.readLine())!=null){
-            mSupportingDataSetList.add(aLine);
+            String DELIM = ":";
+            StringTokenizer tokenizer = new StringTokenizer(aLine, DELIM);
+            mSupportDataSetNameAndFXMLName.put(tokenizer.nextToken(), tokenizer.nextToken());
         }
     }
 
@@ -59,17 +63,39 @@ public class Model {
         return mReportStoreLocation;
     }
 
-    public void setReportStoreLocation(String mReportStoreLocation) {
-        this.mReportStoreLocation = mReportStoreLocation;
+    public void setReportStoreLocation(String reportStoreLocation) {
+        this.mReportStoreLocation = reportStoreLocation;
+    }
+
+    public void setSelectedClassificationMethod(String methodName) throws NoThisMethodException{
+        SupportClassificationMethodEnumerable method = this.mSupportClassificationMethods.get(methodName);
+        if(method!=null){
+            this.mSelectedClassificationMethod = method;
+        }else{
+            throw new NoThisMethodException();
+        }
     }
 
     public final List<String> getSupportingDataSetList() {
-        return mSupportingDataSetList;
+        List<String> dataSetNames = new ArrayList<>();
+        dataSetNames.addAll(mSupportDataSetNameAndFXMLName.keySet());
+        return dataSetNames;
     }
 
     public final List<String> getSupportClassificationMethodList(){
         List<String> ret = new ArrayList<>();
         ret.addAll(this.mSupportClassificationMethods.keySet());
         return ret;
+    }
+
+    public boolean isReady(){
+        return !this.mDataSetLocation.isEmpty()&
+                !this.mReportStoreLocation.isEmpty()&
+                (this.mSelectedClassificationMethod != SupportClassificationMethodEnumerable.NOT_SELECT)&
+                (this.mSelectDataSetNameIndex != null);
+    }
+
+    public final String getFXMLName(String dataSetName){
+        return this.mSupportDataSetNameAndFXMLName.get(dataSetName);
     }
 }

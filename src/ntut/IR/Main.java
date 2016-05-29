@@ -7,9 +7,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.FileInputStream;
-
 public class Main extends Application {
     private String ICON_PNG_NAME = "icon.png";
     private String FXML_FILE_NAME = "GUI.fxml";
