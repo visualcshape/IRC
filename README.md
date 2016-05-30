@@ -1,6 +1,7 @@
 # IR_Classification
 Classify Data Set using Classifier in **Weka 3.8**
-***This Project is under Constriction!***
+
+***This Project is under Construction!***
 
 Requirement
 ===
