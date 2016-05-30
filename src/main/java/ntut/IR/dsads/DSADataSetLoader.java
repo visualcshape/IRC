@@ -59,10 +59,7 @@ public class DSADataSetLoader implements IDataSetLoader{
     }
 
     private boolean validateFile(File fileToValidate){
-        boolean ret = false;
-        if(fileToValidate.canRead())
-            ret = true;
-        return ret;
+        return fileToValidate.canRead();
     }
 
     public DSADataSetLoader(File dataSetRoot, int trainSetAmt){
