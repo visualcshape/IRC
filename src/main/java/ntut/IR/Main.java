@@ -8,6 +8,8 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import ntut.IR.gui.MainController;
 
+import static ntut.IR.dsads.DSADSConstants.UNITS_LIST;
+
 public class Main extends Application {
     private String ICON_PNG_NAME = "icon.png";
     private String FXML_FILE_NAME = "GUI.fxml";

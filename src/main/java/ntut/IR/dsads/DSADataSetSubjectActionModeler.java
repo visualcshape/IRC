@@ -1,52 +1,29 @@
 package ntut.IR.dsads;
 
+import ntut.IR.exception.NotPreparedException;
+
 import java.io.*;
 import java.util.*;
+import static ntut.IR.dsads.DSADSConstants.*;
 
 /**
  * Created by vodalok on 2016/5/30.
  */
-public class DSADataSetActionModeler {
-    private int LINE_LIMIT = 125;
-    private int SAMPLING_TIMES = 125;
-    private int UNIT_AMT = 5;
-    private int METER_AMT = 3;
-    private int SEG_AMT = 60;
-    private List<Units> unitsList = new ArrayList<>(UNIT_AMT);
-    private List<Meters> metersList = new ArrayList<>(METER_AMT);
+public class DSADataSetSubjectActionModeler {
+    private boolean isDataPrepared = false;
     private Map<Meters, Map<Units, List<Vector3<Float>>>> activityData = new HashMap<>(METER_AMT);
 
-    private void switchState(Units state){
-
-    }
-
-    private void addUnits(){
-        unitsList.add(Units.Torso);
-        unitsList.add(Units.RightArm);
-        unitsList.add(Units.LeftArm);
-        unitsList.add(Units.RightLeg);
-        unitsList.add(Units.LeftLeg);
-    }
-
-    private void addMeters(){
-        metersList.add(Meters.Accelerator);
-        metersList.add(Meters.Gyro);
-        metersList.add(Meters.Magneto);
-    }
-
     private void initData(){
-        for(Meters meter:metersList) {
+        for(Meters meter:METERS_LIST) {
             Map<Units, List<Vector3<Float>>> unitsListMap = new HashMap<>(UNIT_AMT);
-            for(Units unit:unitsList){
-                unitsListMap.put(unit, new ArrayList<>(SAMPLING_TIMES * SEG_AMT));
+            for(Units unit:UNITS_LIST){
+                unitsListMap.put(unit, new ArrayList<>(SAMPLING_TIMES * SEGMENT_AMT));
             }
             this.activityData.put(meter, unitsListMap);
         }
     }
 
-    public DSADataSetActionModeler(){
-        addUnits();
-        addMeters();
+    public DSADataSetSubjectActionModeler(){
         initData();
     }
 
@@ -54,10 +31,10 @@ public class DSADataSetActionModeler {
         String DELIM = ",";
         for(File aFile : segmentFileList){
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(aFile)));
-            for(int line = 0 ; line < LINE_LIMIT ; line++){
+            for(int line = 0; line < LINE_AMT; line++){
                 StringTokenizer values = new StringTokenizer(reader.readLine(), DELIM);
-                for(Units unit: unitsList){
-                    for(Meters meter:metersList){
+                for(Units unit: UNITS_LIST){
+                    for(Meters meter:METERS_LIST){
                         Float x = Float.valueOf(values.nextToken());
                         Float y = Float.valueOf(values.nextToken());
                         Float z = Float.valueOf(values.nextToken());
@@ -67,5 +44,12 @@ public class DSADataSetActionModeler {
                 }
             }
         }
+        this.isDataPrepared = true;
+    }
+
+    public final Map<Meters, Map<Units, List<Vector3<Float>>>> getSubjectData() throws NotPreparedException{
+        if(!this.isDataPrepared)
+            throw new NotPreparedException();
+        return this.activityData;
     }
 }

@@ -7,22 +7,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ntut.IR.dsads.DSADSConstants.SEGMENT_AMT;
 import static org.junit.Assert.*;
 
 /**
  * Created by vodalok on 2016/5/30.
  */
-public class DSADataSetActionModelerTest {
+public class DSADataSetSubjectActionModelerTest {
     @Test
     public void runModelerByFileList() {
-        String fileNameTemplate = "/Users/vodalok/Documents/NTUT/IR/data/a01/p1/s%02d.txt";
+        String fileNameTemplate = "D:\\My Documents\\NTUT_Graduate\\IR\\DataSets\\Daily and Sports Activities Data Set\\a01\\p1\\s%02d.txt";
         List<File> testFiles = new ArrayList<>();
-        for(int seg = 1 ; seg <= 60 ; seg++){
+        for(int seg = 1 ; seg <= SEGMENT_AMT ; seg++){
             File segmentFile = new File(String.format(fileNameTemplate, seg));
             testFiles.add(segmentFile);
         }
 
-        DSADataSetActionModeler modeler = new DSADataSetActionModeler();
+        DSADataSetSubjectActionModeler modeler = new DSADataSetSubjectActionModeler();
 
         try {
             modeler.runModelerByFileList(testFiles);

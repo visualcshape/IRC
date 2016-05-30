@@ -13,14 +13,6 @@ import static org.junit.Assert.*;
 public class DSADataSetLoaderTest {
     @Test
     public void loadFileList() {
-        DSADataSetLoader loader = new DSADataSetLoader(new File("/Users/vodalok/Documents/NTUT/IR/data"), 8);
-        try {
-            loader.loadFileList(new File("/Users/vodalok/Documents/NTUT/IR/data"));
-        }catch (IOException exception){
-            exception.printStackTrace();
-            fail();
-        }
-        return;
     }
 
     @Test

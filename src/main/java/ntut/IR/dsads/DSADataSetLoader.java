@@ -1,25 +1,25 @@
 package ntut.IR.dsads;
 
 import ntut.IR.IDataSetLoader;
+import ntut.IR.exception.NotPreparedException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import static ntut.IR.dsads.DSADSConstants.ACTION_AMT;
+import static ntut.IR.dsads.DSADSConstants.SUBJECT_AMT;
+import static ntut.IR.dsads.DSADSConstants.SEGMENT_AMT;
 
 /**
  * Created by vodalok on 2016/5/30.
  */
 public class DSADataSetLoader implements IDataSetLoader{
     private File dataSetRoot;
-    private int ACTION_AMT = 19;
-    private int SUBJECT_AMT = 8;
-    private int SEGMENT_AMT = 60;
-    private int trainSetAmt;
-    private int testSetAmt;
     private List<List<List<File>>> actionFileList = new ArrayList<>(ACTION_AMT); //a/p/s
+    private boolean isLoad = false;
 
-    public void loadFileList(File root) throws FileNotFoundException{
+    private void loadFileList(File root) throws FileNotFoundException{
         String TWO_DIGIT_FORMAT = "%02d";
         String ACTION_START_WORD = "a";
         String SUBJECT_START_WORD = "p";
@@ -56,19 +56,27 @@ public class DSADataSetLoader implements IDataSetLoader{
             }
             actionFileList.add(subjectList);
         }
+        this.isLoad = true;
     }
 
     private boolean validateFile(File fileToValidate){
         return fileToValidate.canRead();
     }
 
-    public DSADataSetLoader(File dataSetRoot, int trainSetAmt){
+    public DSADataSetLoader(File dataSetRoot){
         this.dataSetRoot = dataSetRoot;
-        this.trainSetAmt = trainSetAmt;
-        this.testSetAmt = SUBJECT_AMT - trainSetAmt;
     }
 
-    public void load() throws FileNotFoundException{
+    @Override
+    public void load() throws FileNotFoundException {
         this.loadFileList(this.dataSetRoot);
+    }
+
+    @Override
+    public final List<List<List<File>>> getDataSetList() throws NotPreparedException {
+        if(!isLoad)
+            throw new NotPreparedException();
+
+        return this.actionFileList;
     }
 }
