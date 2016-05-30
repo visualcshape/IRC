@@ -26,26 +26,29 @@ public class DSADataSetLoader implements IDataSetLoader{
         String SEGMENT_START_WORD = "s";
         String SEGMENT_EXTENSION = ".txt";
         for(int actionNumber = 1; actionNumber <= ACTION_AMT ; actionNumber++) {
-            StringBuilder filePathBuilder = new StringBuilder(root.getAbsolutePath());
+            StringBuilder actionPartBuilder = new StringBuilder(root.getAbsolutePath());
             String actionFileDirNumberName = String.format(TWO_DIGIT_FORMAT, actionNumber);
-            filePathBuilder.append(File.separator);
-            filePathBuilder.append(ACTION_START_WORD);
-            filePathBuilder.append(actionFileDirNumberName);
+            actionPartBuilder.append(File.separator);
+            actionPartBuilder.append(ACTION_START_WORD);
+            actionPartBuilder.append(actionFileDirNumberName);
             List<List<File>> subjectList = new ArrayList<>(SEGMENT_AMT);
             for (int subjectNumber = 1; subjectNumber <= SUBJECT_AMT; subjectNumber++) {
-                filePathBuilder.append(File.separator);
-                filePathBuilder.append(SUBJECT_START_WORD);
-                filePathBuilder.append(subjectNumber);
+                StringBuilder subjectPartBuilder = new StringBuilder(actionPartBuilder);
+                subjectPartBuilder.append(File.separator);
+                subjectPartBuilder.append(SUBJECT_START_WORD);
+                subjectPartBuilder.append(subjectNumber);
                 List<File> segmentFileList = new ArrayList<>(SEGMENT_AMT);
                 for (int segmentNumber = 1; segmentNumber <= SEGMENT_AMT; segmentNumber++) {
                     String segmentFileNumberName = String.format(TWO_DIGIT_FORMAT, segmentNumber);
-                    filePathBuilder.append(File.separator);
-                    filePathBuilder.append(SEGMENT_START_WORD);
-                    filePathBuilder.append(segmentFileNumberName);
-                    filePathBuilder.append(SEGMENT_EXTENSION);
-                    File segmentFile = new File(filePathBuilder.toString());
+                    StringBuilder segmentPartBuilder = new StringBuilder(subjectPartBuilder);
+                    segmentPartBuilder.append(File.separator);
+                    segmentPartBuilder.append(SEGMENT_START_WORD);
+                    segmentPartBuilder.append(segmentFileNumberName);
+                    segmentPartBuilder.append(SEGMENT_EXTENSION);
+                    String completeFilePath = new String(segmentPartBuilder);
+                    File segmentFile = new File(completeFilePath);
                     if(!this.validateFile(segmentFile)){
-                        throw new java.io.FileNotFoundException(segmentFile.getName());
+                        throw new java.io.FileNotFoundException(segmentFile.getAbsolutePath());
                     }
                     segmentFileList.add(segmentFile);
                 }
