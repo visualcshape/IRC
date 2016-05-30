@@ -1,4 +1,4 @@
-package ntut.IR;
+package ntut.IR.gui;
 
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import ntut.IR.Model;
 import ntut.IR.exception.NoThisDataSetNameException;
 import ntut.IR.exception.NoThisMethodException;
 import java.io.File;
@@ -27,7 +28,6 @@ public class MainController extends Observable implements Observer{
     //Data
     private Stage mStage = null;
     private Model mModel = new Model();
-    private List<String> mSupportingList = new ArrayList<>();
 
     //GUI Component
     @FXML

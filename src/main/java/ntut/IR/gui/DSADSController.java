@@ -1,4 +1,4 @@
-package ntut.IR;
+package ntut.IR.gui;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
