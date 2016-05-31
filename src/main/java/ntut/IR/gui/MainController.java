@@ -14,12 +14,9 @@ import ntut.IR.exception.NoThisDataSetNameException;
 import ntut.IR.exception.NoThisMethodException;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.function.Consumer;
-import weka.classifiers.lazy.IBk;
 
 public class MainController extends Observable implements Observer{
     //GUI Constants
@@ -42,12 +39,15 @@ public class MainController extends Observable implements Observer{
     private Label mReportStoreLocationLabel;
     @FXML
     private Button mStartButton;
+    @FXML
+    private VBox mClassificationMethodOptionsVBox;
 
     //GUI Data
     private String mDataSetDirectoryLabelText = "請先選擇 Data Set 資料夾位置 (File > Select Data Set Folder)";
     private Paint mDataSetDirectoryLabelTextFill = Paint.valueOf(TEXT_FILL_DEFAULT);
-    private String mReportStoreLocationLabelText = "請選擇一個資料夾來存放報告(此資料夾除了存放資料，亦會存放索引檔案)";
+    private String mReportStoreLocationLabelText = "請選擇一個資料夾來存放報告";
     private Node currentDataSetGUINode = null;
+    private Node currentMethodGUINode = null;
 
     @FXML
     private void ClickCloseMenuItem(){
@@ -98,11 +98,10 @@ public class MainController extends Observable implements Observer{
             @Override
             public void accept(String s) {
                 if(s.equals(mSupportingDataSetsComboBox.getValue())){
-
                     if(currentDataSetGUINode != null)
                         mDataSetSettingVBox.getChildren().remove(currentDataSetGUINode);
                     try {
-                        String fxmlName = mModel.getFXMLName(s);
+                        String fxmlName = mModel.getDataSetFXMLName(s);
                         FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource(fxmlName));
                         mDataSetSettingVBox.getChildren().add(loader.load());
                         mModel.setSelectDataSetName(s);
@@ -113,6 +112,27 @@ public class MainController extends Observable implements Observer{
             }
         });
         checkReady();
+    }
+
+    @FXML
+    private void ChangeMethodComboBoxOption(){
+        this.mModel.getSupportClassificationMethodList().forEach(new Consumer<String>() {
+            @Override
+            public void accept(String methodName) {
+                if(methodName.equals(mSupportClassificationMethodsComboBox.getValue())){
+                    if(currentMethodGUINode != null)
+                        mClassificationMethodOptionsVBox.getChildren().remove(currentDataSetGUINode);
+                    try {
+                        FXMLLoader methodGUILoader = new FXMLLoader(this.getClass().getClassLoader().getResource(mModel.getMethodFXMLName(methodName)));
+                        currentMethodGUINode = methodGUILoader.load();
+                        mModel.setSelectedClassificationMethod(methodName);
+                        mClassificationMethodOptionsVBox.getChildren().add(currentMethodGUINode);
+                    }catch (NoThisMethodException|IOException exception){
+                        showExceptionAlert(exception);
+                    }
+                }
+            }
+        });
     }
 
     @FXML
@@ -211,6 +231,19 @@ public class MainController extends Observable implements Observer{
         try {
             this.mModel.setSelectedClassificationMethod(this.mModel.getSupportClassificationMethodList().get(0));
         }catch (NoThisMethodException exception){
+            showExceptionAlert(exception);
+        }
+        String methodGUIFXMLName = "";
+        try {
+            methodGUIFXMLName = this.mModel.getMethodFXMLName(this.mModel.getSupportClassificationMethodList().get(0));
+        }catch(NoThisMethodException exception){
+            showExceptionAlert(exception);
+        }
+        FXMLLoader methodGUILoader = new FXMLLoader(this.getClass().getClassLoader().getResource(methodGUIFXMLName));
+        try {
+            this.currentMethodGUINode = methodGUILoader.load();
+            this.mClassificationMethodOptionsVBox.getChildren().add(this.currentMethodGUINode);
+        }catch (IOException exception){
             showExceptionAlert(exception);
         }
 

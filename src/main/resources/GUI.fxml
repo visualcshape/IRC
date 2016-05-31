@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="555.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ntut.IR.gui.MainController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="628.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ntut.IR.gui.MainController">
    <children>
       <MenuBar>
         <menus>
@@ -49,6 +49,7 @@
       </TitledPane>
       <Label text="分類演算法" />
       <ComboBox fx:id="mSupportClassificationMethodsComboBox" maxWidth="1.7976931348623157E308" />
+      <VBox fx:id="mClassificationMethodOptionsVBox" prefHeight="59.0" prefWidth="600.0" />
       <Label text="將測試評價報告存檔至下列資料夾" />
       <GridPane>
         <columnConstraints>

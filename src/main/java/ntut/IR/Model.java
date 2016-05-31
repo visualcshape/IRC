@@ -16,18 +16,12 @@ public class Model {
     private String mDataSetLocation = "";
     private String mReportStoreLocation = "";
     private Map<String, String> mSupportDataSetNameAndFXMLName = new HashMap<>();
-    private Map<String, SupportClassificationMethodEnumerable> mSupportClassificationMethods = new HashMap<>();
-    private SupportClassificationMethodEnumerable mSelectedClassificationMethod = SupportClassificationMethodEnumerable.NOT_SELECT;
+    private Map<String, Pair<String, SupportClassifier>> mSupportMethodGUIMap = new HashMap<>();
+    private SupportClassifier mSelectedClassificationMethod = SupportClassifier.UNKNOWN;
     private String mSelectDataSetName = "";
-
-    private enum SupportClassificationMethodEnumerable{
-        NOT_SELECT,
-        KNN
-    }
 
     private void loadSupportingDataSetList() throws IOException{
         String SUPPORTING_LIST_NAME = "supporting_list";
-        char[] readBuff = new char[1024];
         InputStream supportingListStream = this.getClass().getClassLoader().getResourceAsStream(SUPPORTING_LIST_NAME);
         BufferedReader reader = new BufferedReader(new InputStreamReader(supportingListStream));
         String aLine;
@@ -38,9 +32,25 @@ public class Model {
         }
     }
 
-    private void loadSupportClassificationMethodList(){
-        String KNN_NAME = "k-Nearest Neighbor Algorithm";
-        this.mSupportClassificationMethods.put(KNN_NAME, SupportClassificationMethodEnumerable.KNN);
+    private void loadSupportClassificationMethodList() throws IOException{
+        String SUPPORT_METHOD_LIST_NAME = "support_methods";
+        InputStream supportingListStream = this.getClass().getClassLoader().getResourceAsStream(SUPPORT_METHOD_LIST_NAME);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(supportingListStream));
+        String aLine;
+        while((aLine = reader.readLine())!=null){
+            String DELIM = ":";
+            StringTokenizer tokenizer = new StringTokenizer(aLine, DELIM);
+            String methodName = tokenizer.nextToken();
+            String guiName = tokenizer.nextToken();
+            String enumName = tokenizer.nextToken();
+            Pair<String, SupportClassifier> classifierMethodPair = null;
+            for(SupportClassifier type:SupportClassifier.values()){
+                if(type.toString().equals(enumName)){
+                    classifierMethodPair = new Pair<>(guiName, type);
+                }
+            }
+            mSupportMethodGUIMap.put(methodName, classifierMethodPair);
+        }
     }
 
     public Model(){
@@ -69,7 +79,7 @@ public class Model {
     }
 
     public void setSelectedClassificationMethod(String methodName) throws NoThisMethodException{
-        SupportClassificationMethodEnumerable method = this.mSupportClassificationMethods.get(methodName);
+        SupportClassifier method = this.mSupportMethodGUIMap.get(methodName).second;
         if(method!=null){
             this.mSelectedClassificationMethod = method;
         }else{
@@ -85,7 +95,7 @@ public class Model {
 
     public final List<String> getSupportClassificationMethodList(){
         List<String> ret = new ArrayList<>();
-        ret.addAll(this.mSupportClassificationMethods.keySet());
+        ret.addAll(this.mSupportMethodGUIMap.keySet());
         return ret;
     }
 
@@ -100,15 +110,23 @@ public class Model {
     public boolean isReady(){
         return !this.mDataSetLocation.isEmpty()&
                 !this.mReportStoreLocation.isEmpty()&
-                (this.mSelectedClassificationMethod != SupportClassificationMethodEnumerable.NOT_SELECT)&
+                (this.mSelectedClassificationMethod != SupportClassifier.UNKNOWN)&
                 !this.mSelectDataSetName.isEmpty();
     }
 
-    public final String getFXMLName(String dataSetName) throws NoThisDataSetNameException{
+    public final String getDataSetFXMLName(String dataSetName) throws NoThisDataSetNameException{
         String fxmlName = this.mSupportDataSetNameAndFXMLName.get(dataSetName);
         if(fxmlName == null){
             throw new NoThisDataSetNameException();
         }
         return this.mSupportDataSetNameAndFXMLName.get(dataSetName);
+    }
+
+    public final String getMethodFXMLName(String name) throws NoThisMethodException{
+        String fxmlName = this.mSupportMethodGUIMap.get(name).first;
+        if(fxmlName == null){
+            throw new NoThisMethodException();
+        }
+        return this.mSupportMethodGUIMap.get(name).first;
     }
 }
