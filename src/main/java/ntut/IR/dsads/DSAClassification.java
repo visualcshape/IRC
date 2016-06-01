@@ -5,7 +5,6 @@ import ntut.IR.ClassifierFactory;
 import ntut.IR.SupportClassifier;
 import ntut.IR.exception.NotPreparedException;
 import ntut.IR.exception.NotSupportedClassifierException;
-import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
 import weka.core.Attribute;
@@ -27,17 +26,21 @@ import static ntut.IR.dsads.DSADSConstants.*;
  */
 public class DSAClassification extends AbstractClassification{
     private final String CLASS_NAME = "Action Class";
+    private final String RELATION_NAME = "Actions";
     private DSADataSetLoader loader = null;
-    private List<String> classNames = new ArrayList<>(ACTION_AMT);
+    private List<String> classNames = null;
     private Map<String, Attribute> allAttrMap = new HashMap<>(COL_AMT +1);//Plus one class attribute
-    private Instances trainInstances = null;
-    private Classifier model = null;
+    private Instances isTrainSet = null;
+    private Instances isTestSet = null;
+    private Classifier classifierModel = null;
 
-    private void generateClassList(String formatPattern){
+    private List<String> generateClassList(String formatPattern){
+        List<String> returnClassNames = new ArrayList<>(ACTION_AMT);
         for(int actionClass = 1 ; actionClass <= ACTION_AMT ; actionClass++){
             String aClassName = String.format(formatPattern, actionClass);
-            classNames.add(aClassName);
+            returnClassNames.add(aClassName);
         }
+        return returnClassNames;
     }
 
     private List<Attribute> generateAttributes(){
@@ -77,8 +80,12 @@ public class DSAClassification extends AbstractClassification{
         return new String(attrName);
     }
 
-    private int overallCapacity(){
+    private int trainInstanceCapacity(){
         return COL_AMT*LINE_AMT*SEGMENT_AMT*this.trainAmt;
+    }
+
+    private int testInstancesCapacity(){
+        return COL_AMT*LINE_AMT*SEGMENT_AMT*this.testAmt;
     }
 
     private Classifier createClassifierByType(SupportClassifier classifierType, Object[] classifierArgs) throws NotSupportedClassifierException{
@@ -90,6 +97,66 @@ public class DSAClassification extends AbstractClassification{
         return classifier;
     }
 
+    private Instances generateTestSet(int testAmt) throws IOException, NotPreparedException{
+        Instances retTestSet = this.createInstances(this.testInstancesCapacity());
+        for(int testClass = 0 ; testClass < ACTION_AMT ; testClass++){
+            for(int subject = TOTAL_SUBJECT_AMT - testAmt ; subject < TOTAL_SUBJECT_AMT; subject++){
+                retTestSet.addAll(generateInstanceBySubject(testClass, subject));
+            }
+        }
+
+        return retTestSet;
+    }
+
+    private List<Instance> generateInstanceBySubject(int testClassIndex, int subjectIndex) throws NotPreparedException, IOException {
+        DSADataSetSubjectActionModeler aSubjectModeler = new DSADataSetSubjectActionModeler();
+        List<File> segFileList = this.loader.getDataSetList().get(testClassIndex).get(subjectIndex);
+        aSubjectModeler.runModelerByFileList(segFileList);
+        //Create Instance
+        List<Instance> subjectInstances = new ArrayList<>(LINE_AMT*SEGMENT_AMT);
+        for(int index = 0 ; index < LINE_AMT*SEGMENT_AMT ; index++) {
+            Instance anInstance = new DenseInstance(COL_AMT + 1); //Plus one class attr
+            for (Units unit : UNITS_LIST) {
+                for (Meters meter : METERS_LIST) {
+                    Vector3<Float> aVector = aSubjectModeler.getSubjectData().get(meter).get(unit).get(index);
+                    final String xAttrName = this.getAttributeName(unit, meter, "x");
+                    final String yAttrName = this.getAttributeName(unit, meter, "y");
+                    final String zAttrName = this.getAttributeName(unit, meter, "z");
+                    anInstance.setValue(this.allAttrMap.get(xAttrName), aVector.x);
+                    anInstance.setValue(this.allAttrMap.get(yAttrName), aVector.y);
+                    anInstance.setValue(this.allAttrMap.get(zAttrName), aVector.z);
+                    //log
+                    System.out.println("Generating: (Class:" + testClassIndex + ", Subject:"+ subjectIndex+ ", Index:"+ index + ", Unit:" + unit.toString() + ", Meter:" + meter.toString() + ")");
+                }
+            }
+            subjectInstances.add(anInstance);
+            String curClassName = this.classNames.get(testClassIndex);
+            anInstance.setValue(this.allAttrMap.get(CLASS_NAME), curClassName);
+        }
+        return subjectInstances;
+    }
+
+    private Instances generateTrainSet(int trainAmt) throws NotPreparedException, IOException {
+        Instances retTrainSet = this.createInstances(this.trainInstanceCapacity());
+        for(int trainingClass = 0 ; trainingClass < ACTION_AMT ; trainingClass++){
+            for(int subject = 0 ; subject < trainAmt; subject++){
+                retTrainSet.addAll(generateInstanceBySubject(trainingClass, subject));
+            }
+        }
+
+        return retTrainSet;
+    }
+
+    private Instances createInstances(int capacity) {
+        Instances ret = new Instances(RELATION_NAME, (ArrayList<Attribute>) this.getAttributeList(this.allAttrMap), capacity);
+        ret.setClass(this.allAttrMap.get(CLASS_NAME));
+        return ret;
+    }
+
+    private List<Attribute> getAttributeList(Map<String, Attribute> attributeMap){
+        return new ArrayList<>(attributeMap.values());
+    }
+
     public DSAClassification(int trainAmt,DSADataSetLoader loader) throws IllegalArgumentException{
         this(trainAmt, loader, "Action %02d");
     }
@@ -99,11 +166,8 @@ public class DSAClassification extends AbstractClassification{
         if(SUBJECT_AMT <= trainAmt)
             throw new IllegalArgumentException("Amount of train set should not larger than amount of set");
         this.loader = loader;
-        this.generateClassList(classPattern);
-    }
+        this.classNames = this.generateClassList(classPattern);
 
-    public void prepare(){
-        final String RELATION_NAME = "Actions";
         //Sensor attributes
         List<Attribute> attributes = this.generateAttributes();
         //Class Attribute
@@ -113,43 +177,30 @@ public class DSAClassification extends AbstractClassification{
         allAttr.addAll(attributes);
         allAttr.add(classAttr);
         this.allAttrMap = this.getDataAttributesMap(allAttr);
-
-        this.trainInstances = new Instances(RELATION_NAME, allAttr, this.overallCapacity());
-        this.trainInstances.setClass(classAttr);
     }
 
-    public void train(SupportClassifier classifierType,Object[] classifierArgs) throws Exception{
-        for(int trainingClass = 0 ; trainingClass < ACTION_AMT ; trainingClass++){
-            for(int subject = 0 ; subject < this.trainAmt; subject++){
-                DSADataSetSubjectActionModeler aSubjectModeler = new DSADataSetSubjectActionModeler();
-                List<File> segFileList = this.loader.getDataSetList().get(trainingClass).get(subject);
-                aSubjectModeler.runModelerByFileList(segFileList);
-                //Create Instance
-                Instance aInstance = new DenseInstance(COL_AMT);
-                for(Units unit:UNITS_LIST){
-                    for(Meters meter:METERS_LIST){
-                        for(Vector3<Float> aVector:aSubjectModeler.getSubjectData().get(meter).get(unit)){
-                            final String xAttrName = this.getAttributeName(unit, meter, "x");
-                            final String yAttrName = this.getAttributeName(unit, meter, "y");
-                            final String zAttrName = this.getAttributeName(unit, meter, "z");
-                            aInstance.setValue(this.allAttrMap.get(xAttrName), aVector.x);
-                            aInstance.setValue(this.allAttrMap.get(yAttrName), aVector.y);
-                            aInstance.setValue(this.allAttrMap.get(zAttrName), aVector.z);
-                        }
-                    }
-                }
-                String curClassName = this.classNames.get(trainingClass);
-                aInstance.setValue(this.allAttrMap.get(CLASS_NAME), curClassName);
-                this.trainInstances.add(aInstance);
-            }
-        }
-
-        this.model = this.createClassifierByType(classifierType, classifierArgs);
-        this.model.buildClassifier(this.trainInstances);
+    public void prepare() throws NotPreparedException, IOException{
+        System.out.println("Generating Training Sets...");
+        this.isTrainSet = generateTrainSet(this.trainAmt);
+        System.out.println("Generating Test Sets...");
+        this.isTestSet = generateTestSet(this.testAmt);
     }
+
+    public void train(SupportClassifier classifierType, Object[] classifierArgs) throws Exception{
+        this.classifierModel = this.createClassifierByType(classifierType, classifierArgs);
+        System.out.println("Building Classifier");
+        this.classifierModel.buildClassifier(this.isTrainSet);
+    }
+
 
     public void test() throws Exception{
-        Evaluation evaluation = new Evaluation(trainInstances);
-        //TODO: test the classifier.
+        Evaluation evaluation = new Evaluation(isTrainSet);
+        System.out.println("Evaluating Classifier");
+
+        evaluation.evaluateModel(classifierModel, this.isTestSet);
+        //evaluation.evaluateModel(classifierModel, testInstances);
+        System.out.println(evaluation.toSummaryString(true));
+        System.out.println(evaluation.toMatrixString());
+        System.out.println(evaluation.toClassDetailsString());
     }
 }

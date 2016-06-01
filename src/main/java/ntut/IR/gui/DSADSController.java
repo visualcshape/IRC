@@ -6,6 +6,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import ntut.IR.Model;
+import ntut.IR.dsads.DSADSSetting;
 
 import java.awt.*;
 import java.io.IOException;
@@ -17,11 +19,12 @@ import java.util.Observer;
 /**
  * Created by Vodalok on 2016/5/29.
  */
-public class DSADSController extends Observable implements Observer{
+public class DSADSController extends Observable implements Observer, IController{
     //Constant
     private int TOTAL_SET = 8;
     private int DEFAULT_TRAINING_SET = 6;
     private String UCIURI = "https://archive.ics.uci.edu/ml/datasets/Daily+and+Sports+Activities";
+    private Model model;
 
     //GUI
     @FXML
@@ -46,9 +49,23 @@ public class DSADSController extends Observable implements Observer{
         public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
             Integer testingSetCount = TOTAL_SET - newValue;
             trainingSetSpinnerValue = newValue;
+            model.getDSADSSetting().trainAmt = trainingSetSpinnerValue;
             setTestSetLabelText(testingSetCount.toString());
         }
     };
+
+    @Override
+    public void setModel(Model model) {
+        this.model = model;
+        this.syncModel();
+    }
+
+    @Override
+    public void syncModel() {
+        DSADSSetting defaultSetting = new DSADSSetting();
+        defaultSetting.trainAmt = trainingSetSpinnerValue;
+        this.model.setDSADSSetting(defaultSetting);
+    }
 
     public void initialize(){
         SpinnerValueFactory.IntegerSpinnerValueFactory valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, TOTAL_SET - 1, DEFAULT_TRAINING_SET);

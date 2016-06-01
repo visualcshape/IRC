@@ -1,12 +1,14 @@
 package ntut.IR;
 
+import ntut.IR.classifier.KNNSettings;
+import ntut.IR.dsads.DSAClassification;
+import ntut.IR.dsads.DSADSSetting;
+import ntut.IR.dsads.DSADataSetLoader;
 import ntut.IR.exception.NoThisDataSetNameException;
 import ntut.IR.exception.NoThisMethodException;
+import weka.classifiers.Classifier;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -15,10 +17,14 @@ import java.util.*;
 public class Model {
     private String mDataSetLocation = "";
     private String mReportStoreLocation = "";
-    private Map<String, String> mSupportDataSetNameAndFXMLName = new HashMap<>();
+    private Map<String, Pair<String, SupportDS>> mSupportDataSetNameAndFXMLAndType = new HashMap<>();
     private Map<String, Pair<String, SupportClassifier>> mSupportMethodGUIMap = new HashMap<>();
     private SupportClassifier mSelectedClassificationMethod = SupportClassifier.UNKNOWN;
-    private String mSelectDataSetName = "";
+    private SupportDS mSelectDS = SupportDS.UNKNOWN;
+    //-----Data Set Setting----
+    private DSADSSetting dsadsSetting = null;
+    //-----Method Setting----
+    private KNNSettings knnSettings = null;
 
     private void loadSupportingDataSetList() throws IOException{
         String SUPPORTING_LIST_NAME = "supporting_list";
@@ -28,7 +34,16 @@ public class Model {
         while((aLine = reader.readLine())!=null){
             String DELIM = ":";
             StringTokenizer tokenizer = new StringTokenizer(aLine, DELIM);
-            mSupportDataSetNameAndFXMLName.put(tokenizer.nextToken(), tokenizer.nextToken());
+            String dsName = tokenizer.nextToken();
+            String fxmlName = tokenizer.nextToken();
+            String dsType = tokenizer.nextToken();
+            Pair<String, SupportDS> dsPair = null;
+            for(SupportDS ds:SupportDS.values()){
+                if(ds.toString().equals(dsType)){
+                    dsPair = new Pair<>(fxmlName, ds);
+                }
+            }
+            mSupportDataSetNameAndFXMLAndType.put(dsName, dsPair);
         }
     }
 
@@ -62,6 +77,24 @@ public class Model {
         this.loadSupportClassificationMethodList();
     }
 
+    //DS Setting...
+    public void setDSADSSetting(DSADSSetting setting){
+        this.dsadsSetting = setting;
+    }
+
+    public DSADSSetting getDSADSSetting(){
+        return this.dsadsSetting;
+    }
+    //--------------//
+    //Method Setting
+    public void setKNNSetting(KNNSettings setting){
+        this.knnSettings = setting;
+    }
+
+    public KNNSettings getKnnSettings(){
+        return this.knnSettings;
+    }
+
     public void setDataSetLocation(String location){
         this.mDataSetLocation = location;
     }
@@ -89,7 +122,7 @@ public class Model {
 
     public final List<String> getSupportingDataSetList() {
         List<String> dataSetNames = new ArrayList<>();
-        dataSetNames.addAll(mSupportDataSetNameAndFXMLName.keySet());
+        dataSetNames.addAll(mSupportDataSetNameAndFXMLAndType.keySet());
         return dataSetNames;
     }
 
@@ -99,9 +132,9 @@ public class Model {
         return ret;
     }
 
-    public void setSelectDataSetName(String dataSetName) throws NoThisDataSetNameException{
-        if(this.mSupportDataSetNameAndFXMLName.containsKey(dataSetName)){
-            this.mSelectDataSetName = dataSetName;
+    public void setSelectDataSetByName(String dataSetName) throws NoThisDataSetNameException{
+        if(this.mSupportDataSetNameAndFXMLAndType.containsKey(dataSetName)){
+            this.mSelectDS = this.mSupportDataSetNameAndFXMLAndType.get(dataSetName).second;
         }else{
             throw new NoThisDataSetNameException();
         }
@@ -111,15 +144,15 @@ public class Model {
         return !this.mDataSetLocation.isEmpty()&
                 !this.mReportStoreLocation.isEmpty()&
                 (this.mSelectedClassificationMethod != SupportClassifier.UNKNOWN)&
-                !this.mSelectDataSetName.isEmpty();
+                (this.mSelectDS != SupportDS.UNKNOWN);
     }
 
     public final String getDataSetFXMLName(String dataSetName) throws NoThisDataSetNameException{
-        String fxmlName = this.mSupportDataSetNameAndFXMLName.get(dataSetName);
+        Pair<String, SupportDS> fxmlName = this.mSupportDataSetNameAndFXMLAndType.get(dataSetName);
         if(fxmlName == null){
             throw new NoThisDataSetNameException();
         }
-        return this.mSupportDataSetNameAndFXMLName.get(dataSetName);
+        return this.mSupportDataSetNameAndFXMLAndType.get(dataSetName).first;
     }
 
     public final String getMethodFXMLName(String name) throws NoThisMethodException{
@@ -128,5 +161,31 @@ public class Model {
             throw new NoThisMethodException();
         }
         return this.mSupportMethodGUIMap.get(name).first;
+    }
+
+    public void startClassifying() throws Exception{
+        AbstractClassification classification = null;
+        //Data Set
+        switch (this.mSelectDS){
+            case DSADS:
+                DSADataSetLoader loader = new DSADataSetLoader(new File(this.mDataSetLocation));
+                loader.load();
+                classification = new DSAClassification(this.dsadsSetting.trainAmt, loader);
+                break;
+            default:
+                throw new NoThisDataSetNameException();
+        }
+        //Method
+        switch (this.mSelectedClassificationMethod){
+            case KNN:
+                classification.prepare();
+                classification.train(SupportClassifier.KNN, new Object[]{knnSettings.k});
+                break;
+            default:
+                throw new NoThisMethodException();
+        }
+
+        //Test
+        classification.test();
     }
 }

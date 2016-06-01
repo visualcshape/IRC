@@ -48,6 +48,9 @@ public class MainController extends Observable implements Observer{
     private String mReportStoreLocationLabelText = "請選擇一個資料夾來存放報告";
     private Node currentDataSetGUINode = null;
     private Node currentMethodGUINode = null;
+    //***Sub Controller***
+    private KNNOptionsController knnOptionsController = null;
+    private DSADSController dsadsController = null;
 
     @FXML
     private void ClickCloseMenuItem(){
@@ -104,7 +107,11 @@ public class MainController extends Observable implements Observer{
                         String fxmlName = mModel.getDataSetFXMLName(s);
                         FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource(fxmlName));
                         mDataSetSettingVBox.getChildren().add(loader.load());
-                        mModel.setSelectDataSetName(s);
+                        //
+                        IController controller = loader.getController();
+                        controller.setModel(mModel);
+                        //
+                        mModel.setSelectDataSetByName(s);
                     }catch (IOException|NoThisDataSetNameException exception){
                         showExceptionAlert(exception);
                     }
@@ -126,6 +133,10 @@ public class MainController extends Observable implements Observer{
                         FXMLLoader methodGUILoader = new FXMLLoader(this.getClass().getClassLoader().getResource(mModel.getMethodFXMLName(methodName)));
                         currentMethodGUINode = methodGUILoader.load();
                         mModel.setSelectedClassificationMethod(methodName);
+                        //
+                        IController controller = methodGUILoader.getController();
+                        controller.setModel(mModel);
+                        //
                         mClassificationMethodOptionsVBox.getChildren().add(currentMethodGUINode);
                     }catch (NoThisMethodException|IOException exception){
                         showExceptionAlert(exception);
@@ -146,7 +157,12 @@ public class MainController extends Observable implements Observer{
 
     @FXML
     private void ClickStartButton(){
-
+        try {
+            this.mModel.startClassifying();
+        }catch (Exception exception){
+            exception.printStackTrace();
+            showExceptionAlert(exception);
+        }
     }
 
     @FXML
@@ -242,6 +258,10 @@ public class MainController extends Observable implements Observer{
         FXMLLoader methodGUILoader = new FXMLLoader(this.getClass().getClassLoader().getResource(methodGUIFXMLName));
         try {
             this.currentMethodGUINode = methodGUILoader.load();
+            //
+            IController controller = methodGUILoader.getController();
+            controller.setModel(this.mModel);
+            //
             this.mClassificationMethodOptionsVBox.getChildren().add(this.currentMethodGUINode);
         }catch (IOException exception){
             showExceptionAlert(exception);
@@ -255,9 +275,10 @@ public class MainController extends Observable implements Observer{
     private void showExceptionAlert(Exception exception) {
         String ALERT_TITLE = "Error";
         String ALERT_HEADER = exception.getClass().getName();
-        Alert ioErrorAlert = new Alert(Alert.AlertType.ERROR);
-        ioErrorAlert.setTitle(ALERT_TITLE);
-        ioErrorAlert.setHeaderText(ALERT_HEADER);
-        ioErrorAlert.setContentText(exception.getLocalizedMessage());
+        Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+        errorAlert.setTitle(ALERT_TITLE);
+        errorAlert.setHeaderText(ALERT_HEADER);
+        errorAlert.setContentText(exception.getLocalizedMessage());
+        errorAlert.show();
     }
 }

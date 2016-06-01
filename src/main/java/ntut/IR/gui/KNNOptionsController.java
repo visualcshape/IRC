@@ -5,17 +5,34 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import ntut.IR.Model;
+import ntut.IR.classifier.KNNSettings;
 
 /**
  * Created by vodalok on 2016/5/31.
  */
-public class KNNOptionsController {
+public class KNNOptionsController implements IController {
     private Integer k = 1;
+    private Model model = null;
+
+    @Override
+    public void setModel(Model model) {
+        this.model = model;
+        this.syncModel();
+    }
+
+    @Override
+    public void syncModel() {
+        KNNSettings defaultSetting = new KNNSettings();
+        defaultSetting.k = this.k;
+        this.model.setKNNSetting(defaultSetting);
+    }
 
     private ChangeListener<Integer> onSpinnerValueChange = new ChangeListener<Integer>() {
         @Override
         public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
             k = newValue;
+            model.getKnnSettings().k = k;
         }
     };
 
