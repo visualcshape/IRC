@@ -12,6 +12,8 @@ import ntut.IR.classifier.KNNSettings;
  * Created by vodalok on 2016/5/31.
  */
 public class KNNOptionsController implements IController {
+    //Method setting [0] k
+
     private Integer k = 1;
     private Model model = null;
 
@@ -23,16 +25,15 @@ public class KNNOptionsController implements IController {
 
     @Override
     public void syncModel() {
-        KNNSettings defaultSetting = new KNNSettings();
-        defaultSetting.k = this.k;
-        this.model.setKNNSetting(defaultSetting);
+        Object[] defaultSetting = new Object[]{this.k};
+        this.model.setMethodSetting(defaultSetting);
     }
 
     private ChangeListener<Integer> onSpinnerValueChange = new ChangeListener<Integer>() {
         @Override
         public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
             k = newValue;
-            model.getKnnSettings().k = k;
+            model.getMethodSetting()[0] = k;
         }
     };
 

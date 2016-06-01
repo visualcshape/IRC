@@ -6,7 +6,7 @@ import ntut.IR.dsads.DSADSSetting;
 import ntut.IR.dsads.DSADataSetLoader;
 import ntut.IR.exception.NoThisDataSetNameException;
 import ntut.IR.exception.NoThisMethodException;
-import weka.classifiers.Classifier;
+import weka.classifiers.AbstractClassifier;
 
 import java.io.*;
 import java.util.*;
@@ -22,9 +22,9 @@ public class Model {
     private SupportClassifier mSelectedClassificationMethod = SupportClassifier.UNKNOWN;
     private SupportDS mSelectDS = SupportDS.UNKNOWN;
     //-----Data Set Setting----
-    private DSADSSetting dsadsSetting = null;
+    private Object[] dsSetting = null;
     //-----Method Setting----
-    private KNNSettings knnSettings = null;
+    private Object[] methodSetting = null;
 
     private void loadSupportingDataSetList() throws IOException{
         String SUPPORTING_LIST_NAME = "supporting_list";
@@ -78,21 +78,21 @@ public class Model {
     }
 
     //DS Setting...
-    public void setDSADSSetting(DSADSSetting setting){
-        this.dsadsSetting = setting;
+    public void setDSSetting(Object[] setting){
+        this.dsSetting = setting;
     }
 
-    public DSADSSetting getDSADSSetting(){
-        return this.dsadsSetting;
+    public Object[] getDSSetting(){
+        return this.dsSetting;
     }
     //--------------//
     //Method Setting
-    public void setKNNSetting(KNNSettings setting){
-        this.knnSettings = setting;
+    public void setMethodSetting(Object[] setting){
+        this.methodSetting = setting;
     }
 
-    public KNNSettings getKnnSettings(){
-        return this.knnSettings;
+    public Object[] getMethodSetting(){
+        return this.methodSetting;
     }
 
     public void setDataSetLocation(String location){
@@ -164,13 +164,14 @@ public class Model {
     }
 
     public void startClassifying() throws Exception{
-        AbstractClassification classification = null;
+        IClassification classification = null;
         //Data Set
         switch (this.mSelectDS){
             case DSADS:
+                final String dsClassFileName = "DSADSAction_list";
                 DSADataSetLoader loader = new DSADataSetLoader(new File(this.mDataSetLocation));
                 loader.load();
-                classification = new DSAClassification(this.dsadsSetting.trainAmt, loader);
+                classification = new DSAClassification(this.dsSetting, loader, dsClassFileName);
                 break;
             default:
                 throw new NoThisDataSetNameException();
@@ -179,7 +180,7 @@ public class Model {
         switch (this.mSelectedClassificationMethod){
             case KNN:
                 classification.prepare();
-                classification.train(SupportClassifier.KNN, new Object[]{knnSettings.k});
+                classification.train(SupportClassifier.KNN, this.methodSetting);
                 break;
             default:
                 throw new NoThisMethodException();
@@ -187,5 +188,23 @@ public class Model {
 
         //Test
         classification.test();
+        //Store report
+        String reportFileName = "report.txt";
+        this.storeReportToFile(classification, this.mReportStoreLocation, reportFileName);
+    }
+
+    public void storeReportToFile(IClassification classification, String reportPath, String reportFileName) throws IOException{
+        String reportString = classification.getReportString();
+        File reportLocation = new File(reportPath + File.separator + reportFileName);
+        if(reportLocation.getParentFile().mkdir()){
+            System.out.println("Dir already exist");
+        }
+        if(reportLocation.createNewFile()){
+            System.out.println("File already exist, overwritten..");
+        }
+        FileWriter writer = new FileWriter(reportLocation, false);
+        writer.write(reportString);
+        writer.flush();
+        writer.close();
     }
 }

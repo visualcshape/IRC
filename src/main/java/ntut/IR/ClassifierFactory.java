@@ -9,6 +9,7 @@ import weka.classifiers.lazy.IBk;
  */
 public class ClassifierFactory {
     public static Classifier createKNNClassifier(int k) throws NotSupportedClassifierException{
+
         return new IBk(k);
     }
 }

@@ -20,6 +20,8 @@ import java.util.Observer;
  * Created by Vodalok on 2016/5/29.
  */
 public class DSADSController extends Observable implements Observer, IController{
+    //DSSetting [0] trainAmt
+
     //Constant
     private int TOTAL_SET = 8;
     private int DEFAULT_TRAINING_SET = 6;
@@ -49,7 +51,7 @@ public class DSADSController extends Observable implements Observer, IController
         public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
             Integer testingSetCount = TOTAL_SET - newValue;
             trainingSetSpinnerValue = newValue;
-            model.getDSADSSetting().trainAmt = trainingSetSpinnerValue;
+            model.getDSSetting()[0] = trainingSetSpinnerValue;
             setTestSetLabelText(testingSetCount.toString());
         }
     };
@@ -62,9 +64,8 @@ public class DSADSController extends Observable implements Observer, IController
 
     @Override
     public void syncModel() {
-        DSADSSetting defaultSetting = new DSADSSetting();
-        defaultSetting.trainAmt = trainingSetSpinnerValue;
-        this.model.setDSADSSetting(defaultSetting);
+        Object[] defaultSetting = new Object[]{trainingSetSpinnerValue};
+        this.model.setDSSetting(defaultSetting);
     }
 
     public void initialize(){
