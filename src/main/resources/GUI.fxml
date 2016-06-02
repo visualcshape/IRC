@@ -47,10 +47,10 @@
             </AnchorPane>
         </content>
       </TitledPane>
-      <Label text="分類演算法" />
+      <Label text="分類器" />
       <ComboBox fx:id="mSupportClassificationMethodsComboBox" maxWidth="1.7976931348623157E308" onAction="#ChangeMethodComboBoxOption" />
       <VBox fx:id="mClassificationMethodOptionsVBox" prefHeight="59.0" prefWidth="600.0" />
-      <Label text="將測試評價報告存檔至下列資料夾" />
+      <Label text="將測試報告存檔至下列資料夾" />
       <GridPane>
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="568.0" minWidth="10.0" prefWidth="507.0" />

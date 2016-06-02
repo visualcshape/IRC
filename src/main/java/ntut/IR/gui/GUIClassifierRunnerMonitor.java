@@ -3,6 +3,7 @@ package ntut.IR.gui;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
 import ntut.IR.ClassifierRunner;
+import ntut.IR.GUIUtility;
 
 /**
  * Created by vodalok on 2016/6/2.
@@ -19,10 +20,15 @@ public class GUIClassifierRunnerMonitor extends Thread {
     @Override
     public void run() {
         while(runner.isAlive());
-        System.out.println("Finished.");
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
+                if(runner.isHasException()){
+                    System.out.println("An error has occurred!");
+                    GUIUtility.showExceptionAlert(runner.getException());
+                }else{
+                    System.out.println("All Jobs are done successfully!");
+                }
                 startButton.setText("開始");
                 startButton.setDisable(false);
             }

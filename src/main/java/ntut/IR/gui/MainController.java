@@ -10,6 +10,7 @@ import javafx.scene.paint.Paint;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import ntut.IR.ClassifierRunner;
+import ntut.IR.GUIUtility;
 import ntut.IR.Model;
 import ntut.IR.exception.NoThisDataSetNameException;
 import ntut.IR.exception.NoThisMethodException;
@@ -17,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.function.Consumer;
@@ -119,7 +119,7 @@ public class MainController extends Observable implements Observer{
                         //
                         mModel.setSelectDataSetByName(s);
                     }catch (IOException|NoThisDataSetNameException exception){
-                        showExceptionAlert(exception);
+                        GUIUtility.showExceptionAlert(exception);
                     }
                 }
             }
@@ -145,7 +145,7 @@ public class MainController extends Observable implements Observer{
                         //
                         mClassificationMethodOptionsVBox.getChildren().add(currentMethodGUINode);
                     }catch (NoThisMethodException|IOException exception){
-                        showExceptionAlert(exception);
+                        GUIUtility.showExceptionAlert(exception);
                     }
                 }
             }
@@ -171,7 +171,7 @@ public class MainController extends Observable implements Observer{
             monitor.start();
         }catch (Exception exception){
             exception.printStackTrace();
-            showExceptionAlert(exception);
+            GUIUtility.showExceptionAlert(exception);
         }
     }
 
@@ -242,7 +242,7 @@ public class MainController extends Observable implements Observer{
         try {
             this.mModel.init();
         }catch (IOException exception){
-            showExceptionAlert(exception);
+            GUIUtility.showExceptionAlert(exception);
         }
 
         //Support Data Sets
@@ -253,13 +253,13 @@ public class MainController extends Observable implements Observer{
         try {
             this.mModel.setSelectedClassificationMethod(this.mModel.getSupportClassificationMethodList().get(0));
         }catch (NoThisMethodException exception){
-            showExceptionAlert(exception);
+            GUIUtility.showExceptionAlert(exception);
         }
         String methodGUIFXMLName = "";
         try {
             methodGUIFXMLName = this.mModel.getMethodFXMLName(this.mModel.getSupportClassificationMethodList().get(0));
         }catch(NoThisMethodException exception){
-            showExceptionAlert(exception);
+            GUIUtility.showExceptionAlert(exception);
         }
         FXMLLoader methodGUILoader = new FXMLLoader(this.getClass().getClassLoader().getResource(methodGUIFXMLName));
         try {
@@ -270,7 +270,7 @@ public class MainController extends Observable implements Observer{
             //
             this.mClassificationMethodOptionsVBox.getChildren().add(this.currentMethodGUINode);
         }catch (IOException exception){
-            showExceptionAlert(exception);
+            GUIUtility.showExceptionAlert(exception);
         }
 
         this.mStartButton.setDisable(true);
@@ -286,13 +286,4 @@ public class MainController extends Observable implements Observer{
         this.makeChange();
     }
 
-    private void showExceptionAlert(Exception exception) {
-        String ALERT_TITLE = "Error";
-        String ALERT_HEADER = exception.getClass().getName();
-        Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-        errorAlert.setTitle(ALERT_TITLE);
-        errorAlert.setHeaderText(ALERT_HEADER);
-        errorAlert.setContentText(exception.getLocalizedMessage());
-        errorAlert.show();
-    }
 }
