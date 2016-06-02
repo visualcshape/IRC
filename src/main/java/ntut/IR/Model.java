@@ -1,12 +1,9 @@
 package ntut.IR;
 
-import ntut.IR.classifier.KNNSettings;
 import ntut.IR.dsads.DSAClassification;
-import ntut.IR.dsads.DSADSSetting;
 import ntut.IR.dsads.DSADataSetLoader;
 import ntut.IR.exception.NoThisDataSetNameException;
 import ntut.IR.exception.NoThisMethodException;
-import weka.classifiers.AbstractClassifier;
 
 import java.io.*;
 import java.util.*;

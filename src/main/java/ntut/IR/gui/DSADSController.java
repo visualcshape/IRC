@@ -7,7 +7,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import ntut.IR.Model;
-import ntut.IR.dsads.DSADSSetting;
 
 import java.awt.*;
 import java.io.IOException;

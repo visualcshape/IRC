@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import ntut.IR.Model;
-import ntut.IR.classifier.KNNSettings;
 
 /**
  * Created by vodalok on 2016/5/31.
