@@ -9,12 +9,6 @@
     <version>0.1 SNAPSHOT</version>
 
     <dependencies>
-        <!-- http://mvnrepository.com/artifact/org.apache.mahout/mahout-integration -->
-        <dependency>
-            <groupId>org.apache.mahout</groupId>
-            <artifactId>mahout-integration</artifactId>
-            <version>0.12.1</version>
-        </dependency>
         <!-- http://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable -->
         <dependency>
             <groupId>nz.ac.waikato.cms.weka</groupId>
