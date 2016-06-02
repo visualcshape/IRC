@@ -48,7 +48,7 @@
         </content>
       </TitledPane>
       <Label text="分類演算法" />
-      <ComboBox fx:id="mSupportClassificationMethodsComboBox" maxWidth="1.7976931348623157E308" />
+      <ComboBox fx:id="mSupportClassificationMethodsComboBox" maxWidth="1.7976931348623157E308" onAction="#ChangeMethodComboBoxOption" />
       <VBox fx:id="mClassificationMethodOptionsVBox" prefHeight="59.0" prefWidth="600.0" />
       <Label text="將測試評價報告存檔至下列資料夾" />
       <GridPane>
@@ -73,6 +73,6 @@
          </VBox.margin>
       </Button>
       <Label text="紀錄" />
-      <ListView prefHeight="200.0" prefWidth="600.0" />
+      <ListView fx:id="outputListView" prefHeight="200.0" prefWidth="600.0" />
    </children>
 </VBox>

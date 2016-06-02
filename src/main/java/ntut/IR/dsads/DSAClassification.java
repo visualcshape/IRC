@@ -4,7 +4,6 @@ import ntut.IR.AbstractClassification;
 import ntut.IR.ClassifierFactory;
 import ntut.IR.SupportClassifier;
 import ntut.IR.exception.NotPreparedException;
-import ntut.IR.exception.NotSupportedClassifierException;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
 import weka.core.Attribute;
@@ -104,11 +103,20 @@ public class DSAClassification extends AbstractClassification{
         return this.testAmt*ACTION_AMT;
     }
 
-    private Classifier createClassifierByType(SupportClassifier classifierType, Object[] classifierArgs) throws NotSupportedClassifierException{
+    private Classifier createClassifierByType(SupportClassifier classifierType, Object[] classifierArgs) throws Exception{
         Classifier classifier = null;
         switch (classifierType){
             case KNN:
                 classifier = ClassifierFactory.createKNNClassifier((int)classifierArgs[0]);
+                break;
+            case NaiveBayes:
+                classifier = ClassifierFactory.createNaiveBayes();
+                break;
+            case J48:
+                classifier = ClassifierFactory.createJ48();
+                break;
+            case LWL:
+                classifier = ClassifierFactory.createLWL();
         }
         return classifier;
     }
@@ -137,6 +145,7 @@ public class DSAClassification extends AbstractClassification{
                 Float xSum = 0.f;
                 Float ySum = 0.f;
                 Float zSum = 0.f;
+                System.out.printf("Generating Instance : Class: %d, Subject:%s Unit : %s, Meter: %s\n",testClassIndex, subjectIndex, unit.toString(), meter.toString());
                 for(Vector3<Float> aVector:vectorList) {
                     //Calculate Average
                     xSum += aVector.x;

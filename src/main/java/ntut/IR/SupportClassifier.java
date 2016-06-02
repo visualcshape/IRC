@@ -5,5 +5,8 @@ package ntut.IR;
  */
 public enum SupportClassifier {
     UNKNOWN,
-    KNN
+    KNN,
+    NaiveBayes,
+    J48,
+    LWL
 }

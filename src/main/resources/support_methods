@@ -1,1 +1,4 @@
 k-Nearest Neighbor Algorithm:KNNOptionGUI.fxml:KNN
+Naive Bayes:None.fxml:NaiveBayes
+J48:None.fxml:J48
+Locally Weighted Naive Bayes:None.fxml:LWL

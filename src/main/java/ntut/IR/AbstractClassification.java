@@ -3,7 +3,7 @@ package ntut.IR;
 /**
  * Created by Vodalok on 2016/5/31.
  */
-public abstract class AbstractClassification implements IClassification {
+public abstract class AbstractClassification implements IClassification{
     protected int trainAmt;
     protected int testAmt;
     protected final int TOTAL_SUBJECT_AMT;

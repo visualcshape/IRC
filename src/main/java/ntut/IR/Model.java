@@ -1,7 +1,5 @@
 package ntut.IR;
 
-import ntut.IR.dsads.DSAClassification;
-import ntut.IR.dsads.DSADataSetLoader;
 import ntut.IR.exception.NoThisDataSetNameException;
 import ntut.IR.exception.NoThisMethodException;
 
@@ -160,48 +158,18 @@ public class Model {
         return this.mSupportMethodGUIMap.get(name).first;
     }
 
-    public void startClassifying() throws Exception{
-        IClassification classification = null;
-        //Data Set
-        switch (this.mSelectDS){
-            case DSADS:
-                final String dsClassFileName = "DSADSAction_list";
-                DSADataSetLoader loader = new DSADataSetLoader(new File(this.mDataSetLocation));
-                loader.load();
-                classification = new DSAClassification(this.dsSetting, loader, dsClassFileName);
-                break;
-            default:
-                throw new NoThisDataSetNameException();
-        }
-        //Method
-        switch (this.mSelectedClassificationMethod){
-            case KNN:
-                classification.prepare();
-                classification.train(SupportClassifier.KNN, this.methodSetting);
-                break;
-            default:
-                throw new NoThisMethodException();
-        }
+    public ClassifierRunner startClassifying() throws Exception{
+        //Prepare Settings
+        ClassifierSettings settings = new ClassifierSettings();
+        settings.selectClassifier = this.mSelectedClassificationMethod;
+        settings.selectDS = this.mSelectDS;
+        settings.dsLocation = this.mDataSetLocation;
+        settings.dsSetting = this.dsSetting;
+        settings.methodSetting = this.methodSetting;
+        settings.reportStoreLocation = this.mReportStoreLocation;
 
-        //Test
-        classification.test();
-        //Store report
-        String reportFileName = "report.txt";
-        this.storeReportToFile(classification, this.mReportStoreLocation, reportFileName);
-    }
-
-    public void storeReportToFile(IClassification classification, String reportPath, String reportFileName) throws IOException{
-        String reportString = classification.getReportString();
-        File reportLocation = new File(reportPath + File.separator + reportFileName);
-        if(reportLocation.getParentFile().mkdir()){
-            System.out.println("Dir already exist");
-        }
-        if(reportLocation.createNewFile()){
-            System.out.println("File already exist, overwritten..");
-        }
-        FileWriter writer = new FileWriter(reportLocation, false);
-        writer.write(reportString);
-        writer.flush();
-        writer.close();
+        ClassifierRunner classifierThread = new ClassifierRunner(settings);
+        classifierThread.start();
+        return classifierThread;
     }
 }

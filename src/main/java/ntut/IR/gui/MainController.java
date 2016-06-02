@@ -9,11 +9,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import ntut.IR.ClassifierRunner;
 import ntut.IR.Model;
 import ntut.IR.exception.NoThisDataSetNameException;
 import ntut.IR.exception.NoThisMethodException;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.function.Consumer;
@@ -41,6 +45,8 @@ public class MainController extends Observable implements Observer{
     private Button mStartButton;
     @FXML
     private VBox mClassificationMethodOptionsVBox;
+    @FXML
+    private ListView<String> outputListView;
 
     //GUI Data
     private String mDataSetDirectoryLabelText = "請先選擇 Data Set 資料夾位置 (File > Select Data Set Folder)";
@@ -128,7 +134,7 @@ public class MainController extends Observable implements Observer{
             public void accept(String methodName) {
                 if(methodName.equals(mSupportClassificationMethodsComboBox.getValue())){
                     if(currentMethodGUINode != null)
-                        mClassificationMethodOptionsVBox.getChildren().remove(currentDataSetGUINode);
+                        mClassificationMethodOptionsVBox.getChildren().remove(mClassificationMethodOptionsVBox.getChildren().size()-1);
                     try {
                         FXMLLoader methodGUILoader = new FXMLLoader(this.getClass().getClassLoader().getResource(mModel.getMethodFXMLName(methodName)));
                         currentMethodGUINode = methodGUILoader.load();
@@ -158,7 +164,11 @@ public class MainController extends Observable implements Observer{
     @FXML
     private void ClickStartButton(){
         try {
-            this.mModel.startClassifying();
+            mStartButton.setText("工作中...請稍候...");
+            mStartButton.setDisable(true);
+            ClassifierRunner runner = this.mModel.startClassifying();
+            GUIClassifierRunnerMonitor monitor = new GUIClassifierRunnerMonitor(runner, this.mStartButton);
+            monitor.start();
         }catch (Exception exception){
             exception.printStackTrace();
             showExceptionAlert(exception);
@@ -178,14 +188,10 @@ public class MainController extends Observable implements Observer{
 
     private void checkReady(){
         if(this.mModel.isReady()){
-            this.setStartButtonDisabled(false);
+            this.mStartButton.setDisable(false);
         }else {
-            this.setStartButtonDisabled(true);
+            this.mStartButton.setDisable(true);
         }
-    }
-
-    public void setStartButtonDisabled(boolean mStartButtonDisabled) {
-        this.mStartButton.setDisable(mStartButtonDisabled);
     }
 
     public void setThisStage(Stage stage){
@@ -268,6 +274,14 @@ public class MainController extends Observable implements Observer{
         }
 
         this.mStartButton.setDisable(true);
+
+        //new
+        this.outputListView.setItems(FXCollections.observableList(new ArrayList<>()));
+        //Redirect system output
+        PrintStream printStream = new PrintStream(new GUISystemOutput(this.outputListView));
+        System.setOut(printStream);
+        System.setErr(printStream);
+        System.out.println("Welcome!");
 
         this.makeChange();
     }
