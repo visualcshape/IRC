@@ -129,7 +129,6 @@ public class DSAClassification extends AbstractClassification{
         List<File> segFileList = this.loader.getDataSetList().get(testClassIndex).get(subjectIndex);
         aSubjectModeler.runModelerByFileList(segFileList);
         //Create Instance
-        List<Instance> subjectInstances = new ArrayList<>(LINE_AMT*SEGMENT_AMT);
         Instance anInstance = new DenseInstance(COL_AMT + 1); //Plus one class attr
         for (Units unit : UNITS_LIST) {
             for (Meters meter : METERS_LIST) {
